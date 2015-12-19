@@ -3,11 +3,11 @@
 
 // A simple todo model
       var Todo = Backbone.Model.extend({
-        defaults: { title: "New Todo" },
+//        defaults: { title: "New Todo" },
 
-        setTitle: function(title) {
-            this.save({'title': title}, {patch: true});
-        }
+//        setTitle: function(title) {
+//            this.save({'title': title}, {patch: true});
+//        }
       });
 
       // Create a Firebase collection and set the 'firebase' property
@@ -30,7 +30,7 @@
 //          "keyup @ui.todoTitle": "editTodo"
 //        },
         initialize: function() {
-          this.listenTo(this.model, "change", this.render);
+//          this.listenTo(this.model, "change", this.render);
         },
 //        onDelete: function(event) {
 //          event.preventDefault();
