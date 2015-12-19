@@ -22,13 +22,13 @@
         tagName:  "li",
 //        template: _.template("<textarea class='todo-title'></textarea> <a href='/delete' class='delete'>delete</a>"),
         template: _.template("<label class='todo-title'></label>"),
-        ui: {
-            'todoTitle': '.todo-title'
-        },
-        events: {
-          "click .delete": "onDelete",
-          "keyup @ui.todoTitle": "editTodo"
-        },
+//        ui: {
+//            'todoTitle': '.todo-title'
+//        },
+//        events: {
+//          "click .delete": "onDelete",
+//          "keyup @ui.todoTitle": "editTodo"
+//        },
         initialize: function() {
           this.listenTo(this.model, "change", this.render);
         },
@@ -40,7 +40,7 @@
 //        },
         render: function() {
           this.$el.html(this.template(this.model.toJSON()));
-          this.bindUIElements();
+//          this.bindUIElements();
 //          this.$('label').val(this.model.get('title'));
           this.$('label').html(this.model.get('title'));
           return this;
@@ -67,19 +67,19 @@
         addOne: function(todo) {
           var view = new TodoView({model: todo});
           this.list.append(view.render().el);
-        },
-        createTodo: function(e) {
-          if (e.keyCode == 13) {
-            if (!this.input.val()) { return; }
-
-            // create a new location in firebase and save the model data
-            // this will trigger the listenTo method above and a new todo view
-            // will be created as well
-            this.collection.create({title: this.input.val()});
-
-            this.input.val('');
-          }
         }
+//        createTodo: function(e) {
+//          if (e.keyCode == 13) {
+//            if (!this.input.val()) { return; }
+//
+//            // create a new location in firebase and save the model data
+//            // this will trigger the listenTo method above and a new todo view
+//            // will be created as well
+//            this.collection.create({title: this.input.val()});
+//
+//            this.input.val('');
+//          }
+//        }
       });
 
       // Create a function to kick off our BackboneFire app
