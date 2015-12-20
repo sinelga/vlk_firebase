@@ -3,15 +3,23 @@
 	 var event_bus = _({}).extend(Backbone.Events);
 	 
 	 var MyTodo = Backbone.Model.extend({
-//	   defaults: {
-//	     title: "New Todo"
-//	   }
 	 });
+	 
+	 var VlkClientModel = Backbone.Model.extend({
+		 
+	 });
+	 
+	 var VlkClientsCollection = Backbone.Firebase.Collection.extend({
+		   model: VlkClientModel ,
+		   url: "https://vlk-clients.firebaseio.com"
+		 });
+	 
 
 	 var MyTodoCollection = Backbone.Firebase.Collection.extend({
 	   model: MyTodo,
 	   url: "https://vlk-firebase.firebaseio.com"
 	 });
+	 	 
 	 
 	 var TodoView = Backbone.View.extend({
 		  tagName:  "li",
@@ -71,14 +79,39 @@
 	 var ShowActivity = Backbone.View.extend({
 		 className: 'media',
 //		 template: _.template("<%= title %><%=details  %>"),
+		 initialize: function() {
+		 
+
+		 },
+		  events: {
+			  "click .btn" : "save_client"
+		  }, 
+		 		 
 		 render: function() {
 			 
 			 var selectedHtml = _.templateFromUrl("templates/selected.html", {});	 			 
 //			    this.$el.html(this.template(this.model.toJSON()));
 			 this.$el.html(selectedHtml(this.model.toJSON()));
+		     this.name = this.$("#name");
+		     this.email = this.$("#email");
+		     this.phone = this.$("#phone");
 			 return this;
 			 
-		 }
+		 },
+		 
+		   save_client: function(event) {
+			   event.preventDefault();   
+			   console.log(" save_client",this.name.val());
+			   var vlkclientscollection = new VlkClientsCollection();
+			   var today = new Date();
+			   vlkclientscollection.create({date:today.toString(),name:this.name.val(),email:this.email.val(),phone:this.phone.val()});
+			   this.name.val('');
+			   this.email.val('');
+			   this.phone.val('');
+			   
+//				    event_bus.trigger("select_activity",this.model);			    
+			  }	
+		 
 	 });
 	 	 
 	 var MySelectedView = Backbone.View.extend({
@@ -86,8 +119,15 @@
 		 initialize: function() {
 		     this.list = this.$("#selected"); // the list to append to
 		     this.listenTo(event_bus, 'select_activity', this.activity_was_selected);
+		     
+		     this.name = this.$("#name");
+		     this.email = this.$("#email");
+		     this.phone = this.$("#phone");
 		 },
-		   
+//		  events: {
+//			  "click .btn" : "save_client"
+//		  }, 
+		 		 
 		 activity_was_selected: function(model) {
 
 			 	var view = new ShowActivity({model: model});	
@@ -95,14 +135,22 @@
 			     this.list.append(view.render().el);
 			   
 		   }
+//		   save_client: function(event) {
+//			   event.preventDefault();   
+//			   console.log(" save_client",this.name.val());
+//			   var vlkclientscollection = new VlkClientsCollection();
+//			   vlkclientscollection.create({name:this.name.val(),email:this.email.val(),phone:this.phone.val()});
+////				    event_bus.trigger("select_activity",this.model);			    
+//			  }	
 		 
 	 });
 	 	 
 	 
 	 function initFirebase() {
 		  var collection = new MyTodoCollection();
-		  var app = new MyAppView({ collection: collection });
-		  var slectedzone = new MySelectedView({ collection: collection });
+		 
+		  var app = new MyAppView({ collection: collection});
+		  var slectedzone = new MySelectedView();
 		}
 	 
 
