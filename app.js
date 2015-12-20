@@ -1,5 +1,7 @@
       
  $(function() {
+	
+	 
 	 var event_bus = _({}).extend(Backbone.Events);
 	 
 	 var MyTodo = Backbone.Model.extend({
