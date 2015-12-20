@@ -1,7 +1,5 @@
       
  $(function() {
-
-	// First, create a basic model
 	 var event_bus = _({}).extend(Backbone.Events);
 	 
 	 var MyTodo = Backbone.Model.extend({
@@ -10,7 +8,6 @@
 //	   }
 	 });
 
-	 // Create a Firebase Collection, use your Firebase URL as the url property
 	 var MyTodoCollection = Backbone.Firebase.Collection.extend({
 	   model: MyTodo,
 	   url: "https://vlk-firebase.firebaseio.com"
@@ -20,24 +17,20 @@
 		  tagName:  "li",
 		  template: _.template("<span class='badge'><%=id %></span><%= title %>"),
 		  initialize: function() {
-		    this.listenTo(this.model, "change", this.render);
+//		    this.listenTo(this.model, "change", this.render);
 		  },
 		  events: {
-	      "click" : "clear"
+			  "click" : "select_activity"
 		  },
 		  
 		  render: function() {
 		    this.$el.html(this.template(this.model.toJSON()));
 		    return this;
 		  },
-		  clear: function(ev) {
-			    var clicked_element = $(ev.currentTarget);
-			    console.log(clicked_element);
-			    event_bus.trigger("some:event");
-			    
-		  }
-
-		  
+		  select_activity: function() {
+			    		   
+			    event_bus.trigger("select_activity",this.model);			    
+		  }		  
 		});
 	 
 	// The view for the entire application
@@ -45,7 +38,6 @@
 	   el: $('#mytodoapp'),
 	   initialize: function() {
 	     this.list = this.$("#todo-items"); // the list to append to
-//	     this.$el.html(this.$("#slected"));
 	     this.listenTo(this.collection, 'add', this.addOne);
 	   },
 	   addOne: function(todo) {
@@ -54,29 +46,59 @@
 	   }
 	 });
 	 
+	 _.mixin({templateFromUrl: function (url, data, settings) {
+		    var templateHtml = "";
+		    this.cache = this.cache || {};
+
+		    if (this.cache[url]) {
+		        templateHtml = this.cache[url];
+		    } else {
+		        $.ajax({
+		            url: url,
+		            method: "GET",
+		            async: false,
+		            success: function(data) {
+		                templateHtml = data;
+		            }
+		        });
+
+		        this.cache[url] = templateHtml;
+		    }
+
+		    return _.template(templateHtml, data, settings);
+		}});
+	 	 
+	 var ShowActivity = Backbone.View.extend({
+		 className: 'media',
+//		 template: _.template("<%= title %><%=details  %>"),
+		 render: function() {
+			 
+			 var selectedHtml = _.templateFromUrl("templates/selected.html", {});	 			 
+//			    this.$el.html(this.template(this.model.toJSON()));
+			 this.$el.html(selectedHtml(this.model.toJSON()));
+			 return this;
+			 
+		 }
+	 });
+	 	 
 	 var MySelectedView = Backbone.View.extend({
 		 el: $('#mytodoapp'),
 		 initialize: function() {
 		     this.list = this.$("#selected"); // the list to append to
-		     this.listenTo(this.collection, 'add', this.addOne);
-		     this.listenTo(event_bus, 'some:event', this.myFunc);
+		     this.listenTo(event_bus, 'select_activity', this.activity_was_selected);
 		 },
-		   addOne: function(todo) {
-			   console.log(todo.id);
-			 if   (todo.id ==="1") {
-		     var view = new TodoView({model: todo});
-		     this.list.append(view.render().el);
-		     
-			 }
-		   },
 		   
-		   myFunc: function() {
+		 activity_was_selected: function(model) {
+
+			 	var view = new ShowActivity({model: model});	
+			     this.list.empty();
+			     this.list.append(view.render().el);
 			   
-			   console.log("lslsls");
 		   }
 		 
 	 });
 	 	 
+	 
 	 function initFirebase() {
 		  var collection = new MyTodoCollection();
 		  var app = new MyAppView({ collection: collection });
